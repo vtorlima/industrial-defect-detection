@@ -1,4 +1,4 @@
-# Projeto 4: Detecção de Defeitos Industriais com Processamento Digital de Imagens Clássico
+# Detecção de Defeitos Industriais com Processamento Digital de Imagens 
 
 Detecção, segmentação e classificação de defeitos em imagens industriais do dataset **MVTec AD**, usando apenas técnicas clássicas de Processamento Digital de Imagens (PDI) e atributos interpretáveis, **sem redes neurais** em nenhuma etapa.
 
