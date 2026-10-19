@@ -1,7 +1,7 @@
 import numpy as np
 
 from pdi_defeitos.config import load_config
-from pdi_defeitos.io import list_samples, load_image, load_mask, load_sample
+from pdi_defeitos.io import count_by_folder, list_samples, load_image, load_mask, load_sample
 
 
 def test_list_samples_structure(fake_category):
@@ -33,6 +33,12 @@ def test_load_sample_aligns_shapes(fake_category):
     img, mask = load_sample(row, size=32)
     assert img.shape[:2] == mask.shape == (32, 32)
     assert mask.sum() > 0
+
+
+def test_count_by_folder(fake_category):
+    counts = count_by_folder(fake_category)
+    assert counts["train/good"] == 3
+    assert counts["ground_truth/contamination"] == 2
 
 
 def test_config_resolves_paths():

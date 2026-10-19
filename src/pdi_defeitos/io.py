@@ -49,7 +49,7 @@ def list_samples(category_dir: Path | str) -> pd.DataFrame:
     if not category_dir.is_dir():
         raise FileNotFoundError(
             f"Pasta da categoria não existe: {category_dir}. "
-            "Baixe a categoria do MVTec AD e extraia nessa pasta."
+            "Rode `python scripts/download_data.py` primeiro."
         )
 
     rows = []
@@ -121,3 +121,17 @@ def load_sample(row: pd.Series, size: int | None = None, mode: str = "rgb") -> t
     if mask.shape != img.shape[:2]:
         mask = cv2.resize(mask, (img.shape[1], img.shape[0]), interpolation=cv2.INTER_NEAREST)
     return img, mask
+
+
+def count_by_folder(category_dir: Path | str) -> dict[str, int]:
+    """Conta arquivos de imagem por subpasta (ex.: {"train/good": 209, ...})."""
+    category_dir = Path(category_dir)
+    counts: dict[str, int] = {}
+    for top in ("train", "test", "ground_truth"):
+        top_dir = category_dir / top
+        if not top_dir.is_dir():
+            continue
+        for sub in sorted(p for p in top_dir.iterdir() if p.is_dir()):
+            n = sum(1 for f in sub.iterdir() if f.suffix.lower() in IMAGE_EXTS)
+            counts[f"{top}/{sub.name}"] = n
+    return counts

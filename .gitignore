@@ -15,3 +15,6 @@ build/
 
 # Testes
 .pytest_cache/
+
+# Dataset (baixado por scripts/download_data.py; nunca vai para o GitHub)
+data/raw/
