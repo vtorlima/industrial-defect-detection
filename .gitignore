@@ -18,3 +18,8 @@ build/
 
 # Dataset (baixado por scripts/download_data.py; nunca vai para o GitHub)
 data/raw/
+
+# Notebooks e VS Code
+.ipynb_checkpoints/
+.vscode/*
+!.vscode/extensions.json

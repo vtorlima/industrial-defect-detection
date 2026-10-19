@@ -8,3 +8,6 @@ opencv-python>=4.10,<5   # (4.14.0) leitura e redimensionamento; série 4.x, a m
 pandas>=2.2,<4           # (3.0.6)  tabela de amostras do dataset
 pytest>=8.0              # (9.1.1)  testes automáticos
 tqdm>=4.66,<5            # (4.70.1) barra de progresso do download
+matplotlib>=3.9,<4       # (3.11.2) figuras nos notebooks
+ipykernel>=6.29          # (7.4.0)  kernel do Jupyter no VS Code
+nbstripout>=0.7          # (0.9.1)  remove saídas dos notebooks antes do commit
