@@ -6,11 +6,15 @@ category: bottle
 paths:
   data_dir: data/raw/mvtec        # pasta das categorias do MVTec AD (ex.: data/raw/mvtec/bottle/)
 
+image:
+  size: 256                       # lado (px) para o qual as imagens são reduzidas
+  # Imagens: cv2.INTER_AREA. Máscaras: cv2.INTER_NEAREST (nunca interpolar máscara).
+
 dataset:
   url: "https://www.mydrive.ch/shares/150452/132a93367fb17cdf968dfb5c4013f6e7/download/420937370-1629958698/bottle.tar.xz"
   page: "https://www.mvtec.com/company/research/datasets/mvtec-ad/downloads"
   license: "CC BY-NC-SA 4.0 (uso não comercial)"
-  # Contagens esperadas, conferidas por scripts/download_data.py.
+  # Contagens esperadas, conferidas por scripts/download_data.py e scripts/check_env.py.
   expected_counts:
     train/good: 209
     test/good: 20
