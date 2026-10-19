@@ -1,0 +1,7 @@
+# Configuração central do projeto. Todo caminho é relativo à raiz do repositório.
+# Mude valores aqui, nunca dentro do código.
+
+category: bottle
+
+paths:
+  data_dir: data/raw/mvtec        # pasta das categorias do MVTec AD (ex.: data/raw/mvtec/bottle/)

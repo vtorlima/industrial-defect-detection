@@ -1,0 +1,8 @@
+# Dependências do projeto. Uma biblioteca só entra aqui quando o código passa a usá-la.
+# Instale com:  pip install -r requirements.txt
+# Entre parênteses, a versão testada.
+
+pyyaml>=6.0,<7           # (6.0.3)  leitura do config.yaml
+numpy>=2.0,<3            # (2.4.6)  matrizes e imagens
+opencv-python>=4.10,<5   # (4.14.0) leitura e redimensionamento; série 4.x, a mesma das aulas
+pandas>=2.2,<4           # (3.0.6)  tabela de amostras do dataset

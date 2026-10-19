@@ -8,3 +8,7 @@ __pycache__/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Instalação do pacote (pip install -e .)
+*.egg-info/
+build/
