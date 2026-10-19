@@ -12,3 +12,6 @@ desktop.ini
 # Instalação do pacote (pip install -e .)
 *.egg-info/
 build/
+
+# Testes
+.pytest_cache/
