@@ -40,3 +40,10 @@ partition:
   n_dev_per_type: 3               # defeituosas por tipo para ajuste; fora das métricas finais
   cv_splits: 5                    # folds da validação cruzada estratificada
   cv_seeds: [0, 1, 2, 3, 4]       # repetições da validação cruzada
+
+# Fase 3 — alinhamento, referência e baseline (scripts/run_fase3.py)
+reference:
+  align: true                     # transladar cada garrafa para o centro médio da referência
+  roi_frac: 0.95                  # raio da ROI como fração do raio da garrafa (exclui a borda com o fundo)
+  eps: 2.0                        # somado ao desvio por pixel no mapa z (níveis de cinza)
+  threshold_percentile: 99.5      # limiar = este percentil de z nas imagens de calibração
