@@ -7,6 +7,7 @@ começa. Módulos atuais:
   io      listagem do dataset, imagens e máscaras
   stats   medidas da exploração (ruído, posição, tamanho e contraste dos defeitos)
   viz     galerias e mapas de variabilidade
+  split   partição supervisionada própria e folds da validação cruzada
 """
 
 __version__ = "0.1.0"
