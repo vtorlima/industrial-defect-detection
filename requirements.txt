@@ -11,3 +11,4 @@ tqdm>=4.66,<5            # (4.70.1) barra de progresso do download
 matplotlib>=3.9,<4       # (3.11.2) figuras nos notebooks
 ipykernel>=6.29          # (7.4.0)  kernel do Jupyter no VS Code
 nbstripout>=0.7          # (0.9.1)  remove saídas dos notebooks antes do commit
+scikit-learn>=1.5,<2     # (1.9.1)  StratifiedKFold na partição; depois SVM e Random Forest

@@ -28,6 +28,7 @@ ROOT = Path(__file__).resolve().parents[1]
 IMPORT_NAMES = {
     "opencv-python": "cv2",
     "pyyaml": "yaml",
+    "scikit-learn": "sklearn",
 }
 
 problems: list[str] = []
