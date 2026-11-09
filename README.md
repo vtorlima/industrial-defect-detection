@@ -113,42 +113,153 @@ Os atributos são calculados sobre a **máscara prevista**, nunca sobre a másca
 3. **Ablação por etapa:** remoção de uma etapa por vez (denoising, bordas, morfologia) e medição de ΔDice e ΔF1.
 4. **Troca de classificador:** SVM e RF empatando indica que o classificador não é o gargalo.
 
-## Estrutura sugerida do repositório
+## Estrutura do repositório
+
+O repositório cresce junto com o projeto: um módulo, uma pasta ou uma dependência só entra quando a fase que o usa começa.
+Estado atual (Fase 0):
 
 ```
-.
-├── src/
-│   ├── io.py
-│   ├── preprocess.py
-│   ├── reference.py
-│   ├── segment.py
-│   ├── morph.py
-│   ├── metrics.py
-│   ├── features.py
-│   └── classify.py
-├── notebooks/        # um notebook por experimento
-├── results/          # CSVs com resultados e parâmetros de cada rodada
-├── data/             # MVTec AD (categoria bottle), não versionado
-└── README.md
+industrial-defect-detection/
+├── config.yaml            parâmetros centrais (categoria, caminhos, tamanho da imagem)
+├── requirements.txt       bibliotecas usadas até agora
+├── pyproject.toml         permite `pip install -e .`
+├── data/                  dataset (baixado localmente, fora do Git)
+├── notebooks/
+│   └── 00_verificacao_ambiente.ipynb
+├── scripts/
+│   ├── download_data.py   baixa e confere o dataset
+│   └── check_env.py       verifica se o ambiente está pronto
+├── src/pdi_defeitos/
+│   ├── config.py          leitura do config.yaml
+│   └── io.py              listagem do dataset, imagens e máscaras
+└── tests/                 testes automáticos (rodam sem o dataset)
 ```
 
 ## Tecnologias
 
-- Python
+Pilha prevista para o projeto inteiro. Cada biblioteca entra no `requirements.txt` quando a fase que a usa começa.
+
+- Python 3.11 ou 3.12
 - OpenCV
 - scikit-image
 - scikit-learn
 - NumPy
 - Matplotlib
 
-## Como executar
+## Configurar o ambiente (uma vez por computador)
 
-1. Baixe a categoria `bottle` do MVTec AD e extraia em `data/`.
-2. Instale as dependências:
-   ```bash
-   pip install numpy opencv-python scikit-image scikit-learn matplotlib
-   ```
-3. Execute os notebooks da pasta `notebooks/` na ordem dos experimentos (também é possível rodar no Google Colab).
+### 1. Instalar os programas
+
+| Programa | Onde | Observação |
+| --- | --- | --- |
+| Git | https://git-scm.com/downloads | No Windows, aceite as opções padrão do instalador. |
+| Python 3.11 ou 3.12 | https://www.python.org/downloads/ | No Windows, **marque "Add python.exe to PATH"** na primeira tela. |
+| VS Code | https://code.visualstudio.com/ | Ao abrir o repositório ele sugere as extensões Python e Jupyter: aceite. |
+
+Confira no terminal (no Windows, PowerShell):
+
+```
+git --version
+python --version
+```
+
+### 2. Clonar o repositório
+
+```
+cd C:\repos            # ou a pasta onde você guarda projetos
+git clone https://github.com/vtorlima/industrial-defect-detection.git
+cd industrial-defect-detection
+```
+
+### 3. Criar e ativar o ambiente virtual
+
+**Windows (PowerShell):**
+
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+```
+
+Se aparecer erro de "execução de scripts desabilitada", rode uma vez
+`Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` e tente de novo.
+
+**macOS / Linux:**
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+Com o ambiente ativo, o terminal mostra `(.venv)` no começo da linha. **Ative sempre antes de trabalhar.**
+
+### 4. Instalar as dependências
+
+```
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+pip install -e .
+nbstripout --install
+```
+
+- `pip install -e .` instala o pacote `pdi_defeitos` em modo editável: mudanças em `src/` valem na hora, em notebooks e scripts.
+- `nbstripout --install` faz o Git ignorar as saídas dos notebooks, o que evita conflitos de merge entre nós dois.
+
+### 5. Baixar o dataset (~150 MB)
+
+```
+python scripts/download_data.py
+```
+
+Se o download falhar (rede bloqueada ou link mudado), baixe `bottle` manualmente na
+[página de downloads do MVTec AD](https://www.mvtec.com/company/research/datasets/mvtec-ad/downloads) e rode:
+
+```
+python scripts/download_data.py --archive CAMINHO\PARA\bottle.tar.xz
+```
+
+### 6. Verificar
+
+```
+python scripts/check_env.py
+pytest
+```
+
+O primeiro deve terminar com **TUDO OK**; o segundo com todos os testes passando.
+Por fim, abra `notebooks/00_verificacao_ambiente.ipynb` no VS Code, escolha o kernel **.venv** (canto superior direito) e rode tudo: deve aparecer uma garrafa de cada tipo com o defeito em vermelho.
+
+## Como trabalhamos com o Git
+
+Regra geral: **`main` sempre funciona**. Trabalho novo vai para uma branch e entra na `main` por Pull Request.
+
+```
+git checkout main
+git pull                                   # 1. pegar o que o outro fez
+git checkout -b fase1-exploracao           # 2. branch com nome da fase/tarefa
+# ... trabalhar ...
+git add .
+git commit -m "Fase 1: galeria de imagens e áreas dos defeitos"
+git push -u origin fase1-exploracao        # 3. enviar
+```
+
+Depois abra o Pull Request no GitHub; o outro revisa e faz o merge.
+
+Combinados:
+
+- Um notebook por pessoa por vez. Para editar o notebook do outro, combine antes.
+- Código reaproveitável vai para `src/pdi_defeitos/`; notebooks só chamam funções e mostram resultados.
+- Parâmetros ficam no `config.yaml` ou no topo do notebook, nunca espalhados no código.
+- Nunca suba o dataset nem imagens geradas (o `.gitignore` já bloqueia).
+- Rode `pytest` antes de abrir um Pull Request.
+
+## Problemas comuns
+
+| Sintoma | Solução |
+| --- | --- |
+| `python` não é reconhecido (Windows) | Reinstale o Python marcando "Add to PATH", ou use `py` no lugar de `python`. |
+| `Activate.ps1 cannot be loaded` | `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` |
+| `ModuleNotFoundError: pdi_defeitos` | Ambiente não ativado ou faltou `pip install -e .` |
+| Notebook não acha as bibliotecas | No VS Code, selecione o kernel `.venv` |
+| `cv2.imread` devolve `None` | Caminho com acento no Windows; use `pdi_defeitos.io.load_image`, que já trata isso |
 
 ## Cronograma
 
@@ -165,4 +276,5 @@ Os atributos são calculados sobre a **máscara prevista**, nunca sobre a másca
 ## Referências
 
 - Bergmann, P. et al. *MVTec AD: A Comprehensive Real-World Dataset for Unsupervised Anomaly Detection.* CVPR, 2019.
+- Bergmann, P. et al. *The MVTec Anomaly Detection Dataset: A Comprehensive Real-World Dataset for Unsupervised Anomaly Detection.* IJCV, 2021.
 - Documentação do [OpenCV](https://docs.opencv.org/), [scikit-image](https://scikit-image.org/docs/stable/) e [scikit-learn](https://scikit-learn.org/stable/).
