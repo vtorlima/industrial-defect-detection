@@ -31,3 +31,12 @@ exploration:
   radial_bin: 0.1                 # largura das faixas de raio no perfil de variabilidade
   gallery_per_type: 5             # exemplos por tipo na galeria
   gallery_seed: 0                 # sorteio dos exemplos da galeria
+
+# Fase 2 — partição supervisionada própria (scripts/run_fase2.py)
+seed: 0                           # semente única do projeto; mudar = nova partição
+partition:
+  n_reference: 120                # boas do treino para média e desvio por pixel
+  n_calibration: 30               # boas do treino para fixar limiares
+  n_dev_per_type: 3               # defeituosas por tipo para ajuste; fora das métricas finais
+  cv_splits: 5                    # folds da validação cruzada estratificada
+  cv_seeds: [0, 1, 2, 3, 4]       # repetições da validação cruzada
