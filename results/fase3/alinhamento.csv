@@ -1,0 +1,5 @@
+alinhado,regiao,std_mediano,std_p95
+True,"fundo (r<0,5)",2.020,7.083
+True,"anéis (0,5<=r<0,95)",9.806,19.061
+False,"fundo (r<0,5)",2.073,7.868
+False,"anéis (0,5<=r<0,95)",10.944,21.236

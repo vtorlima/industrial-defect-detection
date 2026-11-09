@@ -1,0 +1,5 @@
+variante,role,auroc_pixel
+baseline,development,0.8296
+baseline,evaluation,0.7985
+sem_alinhamento,development,0.8124
+sem_alinhamento,evaluation,0.7800
