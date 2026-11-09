@@ -53,3 +53,26 @@ def variability_maps(mean_map: np.ndarray, std_map: np.ndarray, title_std: str =
         ax.set_yticks([])
     fig.tight_layout()
     return fig
+
+
+def panel_grid(rows: list[list[np.ndarray]], row_titles: list[str], col_titles: list[str], cmaps=None, vmax=None) -> plt.Figure:
+    """Grade de imagens: uma linha por exemplo, uma coluna por etapa (imagem, mapa, máscara...).
+
+    cmaps/vmax: por coluna (None = padrão). Usada nas galerias de resultados e de erros.
+    """
+    n_r, n_c = len(rows), len(col_titles)
+    cmaps = cmaps or [None] * n_c
+    vmax = vmax or [None] * n_c
+    fig, axes = plt.subplots(n_r, n_c, figsize=(2.3 * n_c, 2.3 * n_r), squeeze=False)
+    for r, imgs in enumerate(rows):
+        for c, im in enumerate(imgs):
+            ax = axes[r, c]
+            ax.imshow(im, cmap=cmaps[c], vmin=0 if vmax[c] is not None else None, vmax=vmax[c])
+            ax.set_xticks([])
+            ax.set_yticks([])
+            if r == 0:
+                ax.set_title(col_titles[c], fontsize=9)
+            if c == 0:
+                ax.set_ylabel(row_titles[r], fontsize=8)
+    fig.tight_layout()
+    return fig
