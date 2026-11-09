@@ -1,0 +1,4 @@
+defect_type,n,area_px_min,area_px_median,area_px_max,area_frac_min,area_frac_median,area_frac_max,equiv_diameter_px_min,equiv_diameter_px_median,equiv_diameter_px_max,n_components_min,n_components_median,n_components_max,radial_pos_min,radial_pos_median,radial_pos_max,dL_min,dL_median,dL_max,dab_min,dab_median,dab_max
+broken_large,20,2682.0000,7780.5000,17978.0000,0.0409,0.1187,0.2743,58.4365,99.4804,151.2954,1.0000,1.0000,1.0000,0.2569,0.4407,0.5785,-52.3020,10.9337,39.4711,0.3357,1.4159,5.0853
+broken_small,22,582.0000,1597.0000,5272.0000,0.0089,0.0244,0.0804,27.2218,45.0869,81.9300,1.0000,1.0000,3.0000,0.4592,0.6024,0.6714,2.0564,25.6257,51.5271,0.9505,3.2117,10.8695
+contamination,21,378.0000,4754.0000,10847.0000,0.0058,0.0725,0.1655,21.9382,77.8009,117.5195,1.0000,1.0000,2.0000,0.0069,0.1081,0.6777,-24.4321,1.9829,113.9096,0.4025,3.7867,16.9346
