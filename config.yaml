@@ -24,3 +24,10 @@ dataset:
     ground_truth/broken_large: 20
     ground_truth/broken_small: 22
     ground_truth/contamination: 21
+
+# Fase 1 — exploração (scripts/run_fase1.py)
+exploration:
+  ring_px: 6                      # largura (px a 256) do anel ao redor do defeito para medir contraste
+  radial_bin: 0.1                 # largura das faixas de raio no perfil de variabilidade
+  gallery_per_type: 5             # exemplos por tipo na galeria
+  gallery_seed: 0                 # sorteio dos exemplos da galeria
