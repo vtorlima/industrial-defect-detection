@@ -1,2 +1,6 @@
 # Normaliza finais de linha entre Windows e Mac/Linux.
 * text=auto eol=lf
+
+*.ipynb filter=nbstripout
+*.zpln filter=nbstripout
+*.ipynb diff=ipynb
