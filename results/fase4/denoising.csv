@@ -1,0 +1,7 @@
+filtro,method,thr,cal_components,auroc,auroc_broken_large,auroc_broken_small,auroc_contamination,sep,dice,precision,recall,n_pred_components
+none,none,2.6342,16.8667,0.8296,0.7502,0.8542,0.9053,0.7676,0.5223,0.8576,0.3973,37.5556
+gaussian(sigma=1),gaussian,2.5340,7.8000,0.8655,0.7948,0.8992,0.9264,1.0306,0.5787,0.8682,0.4555,16.5556
+gaussian(sigma=2),gaussian,2.4196,4.1333,0.8882,0.8261,0.9206,0.9433,1.3441,0.6419,0.8634,0.5328,11.0000
+gaussian(sigma=3),gaussian,2.3739,3.1000,0.8928,0.8339,0.9199,0.9511,1.3756,0.6669,0.8458,0.5747,10.4444
+median(ksize=5),median,2.6015,8.2333,0.8660,0.7966,0.9014,0.9253,0.9334,0.5695,0.8843,0.4392,12.7778
+"bilateral(d=9,sigma_color=30,sigma_space=3)",bilateral,2.5325,8.7333,0.8766,0.8084,0.9058,0.9404,1.0536,0.5965,0.8802,0.4710,16.5556

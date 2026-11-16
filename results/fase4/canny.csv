@@ -1,0 +1,3 @@
+razao,frac_bordas_novas_dentro_do_defeito,defeitos_com_borda_nova,cobertura_broken_large,cobertura_broken_small,cobertura_contamination,px_borda_nova_por_boa_calib,componentes_por_boa_calib
+2:1,0.1484,0.8889,0.0314,0.0754,0.0215,958.8667,15.0000
+3:1,0.1760,0.8889,0.0399,0.0779,0.0216,794.7000,20.0333
