@@ -70,3 +70,7 @@ pipeline:
   normalize_brightness: false             # Fase 4: piora a AUROC e não reduz FP nas boas do teste
   anomaly_map: maximo                     # Fase 4: max(z intensidade, z gradiente Sobel); melhora broken.
                                           #   Custo: ~3x componentes espúrios nas boas (Fase 6 mede)
+  anomaly_maps_fase5: [intensidade, maximo]   # Relatório da Fase 4: o Sobel está condicionado, então a Fase 5
+                                          #   avalia os dois mapas e a morfologia da Fase 6 decide. Critério:
+                                          #   fica o mapa com menos falsos positivos e recall igual ou maior
+                                          #   depois da limpeza; se não, volta a `intensidade`
