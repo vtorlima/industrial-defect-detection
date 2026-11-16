@@ -152,7 +152,8 @@ def hbar_panel(ax: plt.Axes, labels: list[str], values, title: str, highlight: i
     ax.set_xlim(0, values.max() * 1.22)
     ax.set_ylim(len(values) - 0.5, -0.5)
     ax.set_yticks(y, labels)
-    ax.xaxis.set_major_formatter(lambda v, _: fmt_br(v, 0))
+    tick_decimals = 0 if values.max() >= 5 else 1 if values.max() >= 0.5 else 2
+    ax.xaxis.set_major_formatter(lambda v, _: fmt_br(v, tick_decimals))
     ax.grid(axis="x", color=GRID, linewidth=0.8, zorder=0)
     ax.set_axisbelow(True)
     ax.axvline(0, color="#c3c2b7", linewidth=1, zorder=3)
@@ -222,3 +223,97 @@ def _titles(fig: plt.Figure, title: str, subtitle: str) -> None:
     fig.text(0.012, 0.965, title, fontsize=13.5, fontweight="bold", color=INK, va="top")
     if subtitle:
         fig.text(0.012, 0.905, subtitle, fontsize=9.5, color=INK_2, va="top")
+
+
+# --- Peças dos notebooks de apresentação (leem results/, não recalculam) -------------
+
+SERIES = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100"]  # cores categóricas, sempre nesta ordem
+
+
+def fmt_table(df: pd.DataFrame, decimals: int = 2, mark=None, mark_text: str = "← escolhido") -> pd.DataFrame:
+    """Tabela pronta para exibir: reais com `decimals` casas e vírgula decimal, NaN como "–",
+    booleanos como sim/não; inteiros e textos ficam como estão.
+
+    mark: rótulo do índice a destacar (recebe `mark_text` ao lado). Devolve um DataFrame de
+    textos, que o GitHub mostra igual ao Jupyter (o Styler do pandas perde o estilo lá).
+    """
+    def cell(v):
+        if isinstance(v, (bool, np.bool_)):
+            return "sim" if v else "não"
+        if isinstance(v, (float, np.floating)):
+            return "–" if np.isnan(v) else fmt_br(v, decimals)
+        return v
+
+    out = df.copy()
+    for col in out.columns:
+        out[col] = out[col].map(cell).astype(object)
+    if mark is not None:
+        if mark not in out.index:
+            raise KeyError(f"{mark!r} não está no índice da tabela")
+        out.index = [f"{i}  {mark_text}" if i == mark else i for i in out.index]
+        out.index.name = df.index.name
+    return out
+
+
+def hpanels(labels: list[str], panels: list[dict], highlight: int | None = None,
+            title: str = "", subtitle: str = "") -> plt.Figure:
+    """Linha de painéis horizontais com os mesmos rótulos (um por linha de cada painel).
+
+    panels: dicionários com `title`, `values` e, opcionalmente, `note`, `kind` ("bar",
+    o padrão: barras desde o zero; "dot": pontos, para quando a diferença importa mais
+    que a distância ao zero), `xlim` (só "dot") e `decimals`.
+    """
+    n = len(panels)
+    fig, axes = plt.subplots(1, n, figsize=(2.9 * n + 1.8, 0.42 * len(labels) + 2.1), sharey=True,
+                             facecolor=SURFACE, squeeze=False)
+    for ax, p in zip(axes[0], panels):
+        values = np.asarray(p["values"], dtype=float)
+        if p.get("kind", "bar") == "dot":
+            pad = 0.6 * (values.max() - values.min()) or 1.0
+            xlim = p.get("xlim") or (values.min() - pad, values.max() + pad)
+            dot_panel(ax, labels, values, p["title"], highlight, xlim=xlim, note=p.get("note"), decimals=p.get("decimals", 2))
+        else:
+            hbar_panel(ax, labels, values, p["title"], highlight, note=p.get("note"), decimals=p.get("decimals", 2))
+    _titles(fig, title, subtitle)
+    return fig
+
+
+def stacked_hbar(table: pd.DataFrame, title: str = "", subtitle: str = "", xlabel: str = "imagens") -> plt.Figure:
+    """Barras horizontais empilhadas de contagens: uma barra por linha de `table`, um
+    segmento por coluna (até 4 colunas), com o total na ponta e legenda em cima."""
+    if table.shape[1] > len(SERIES):
+        raise ValueError(f"no máximo {len(SERIES)} colunas")
+    fig, ax = plt.subplots(figsize=(8.5, 0.5 * len(table) + 2.0), facecolor=SURFACE)
+    _style_axis(ax, "")
+    y = np.arange(len(table))
+    left = np.zeros(len(table))
+    for color, col in zip(SERIES, table.columns):
+        vals = table[col].to_numpy(dtype=float)
+        ax.barh(y, vals, left=left, height=0.5, color=color, edgecolor=SURFACE, linewidth=1.5, label=str(col), zorder=2)
+        left += vals
+    for i, total in enumerate(left):
+        ax.annotate(fmt_br(total, 0), (total, i), xytext=(5, 0), textcoords="offset points", va="center", fontsize=9, color=INK)
+    ax.set_xlim(0, left.max() * 1.1)
+    ax.set_ylim(len(table) - 0.5, -0.5)
+    ax.set_yticks(y, [str(i) for i in table.index])
+    ax.tick_params(axis="y", labelsize=9.5, colors=INK_2)
+    ax.set_xlabel(xlabel, fontsize=8.5, color=MUTED)
+    ax.grid(axis="x", color=GRID, linewidth=0.8, zorder=0)
+    ax.set_axisbelow(True)
+    ax.legend(loc="lower left", bbox_to_anchor=(0, 1.0), ncol=table.shape[1], frameon=False, fontsize=9,
+              labelcolor=INK_2, handlelength=1.0, columnspacing=1.4, borderaxespad=0.2)
+    _titles(fig, title, subtitle)
+    return fig
+
+
+def dataset_available(category_dir) -> bool:
+    """True se a categoria do MVTec AD está no disco. As seções opcionais dos notebooks
+    (exemplos visuais) usam isto para pular, com uma mensagem, quando o dataset não foi baixado."""
+    from pathlib import Path
+
+    ok = (Path(category_dir) / "train" / "good").is_dir()
+    if not ok:
+        print(f"Dataset não encontrado em {category_dir}.\n"
+              "Esta seção é opcional e foi pulada; o resto do notebook não depende dela.\n"
+              "Para vê-la, baixe o dataset (README, passo 5) e rode de novo.")
+    return ok
