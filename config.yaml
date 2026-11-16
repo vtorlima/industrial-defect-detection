@@ -47,3 +47,26 @@ reference:
   roi_frac: 0.95                  # raio da ROI como fração do raio da garrafa (exclui a borda com o fundo)
   eps: 2.0                        # somado ao desvio por pixel no mapa z (níveis de cinza)
   threshold_percentile: 99.5      # limiar = este percentil de z nas imagens de calibração
+
+# Fase 4 — denoising e bordas (scripts/run_fase4.py)
+# Candidatos testados. A escolha final vai para a seção `pipeline`, abaixo, depois da análise.
+denoise_candidates:
+  - {method: none}
+  - {method: gaussian, sigma: 1}
+  - {method: gaussian, sigma: 2}
+  - {method: gaussian, sigma: 3}      # teto: ~1/4 do raio do menor defeito
+  - {method: median, ksize: 5}
+  - {method: bilateral, d: 9, sigma_color: 30, sigma_space: 3}
+decision_tie: 0.01                    # diferenças de AUROC menores que isto = empate -> vence o mais simples
+edges:
+  grad_eps: 2.0                       # somado ao desvio do gradiente no mapa z do gradiente
+  canny_high: 80                      # T_H do Canny (T_L = T_H / razão)
+  canny_ratios: [2, 3]                # razões T_H:T_L recomendadas pelo guia
+  canny_tolerance_px: 2               # dilatação das bordas da referência (desalinhamento residual)
+
+# Escolhas do pipeline. Cada fase registra aqui o que decidiu; as fases seguintes leem daqui.
+pipeline:
+  denoise: {method: gaussian, sigma: 2}   # Fase 4: AUROC 0,83 -> 0,89; empate com sigma=3 vence o menor
+  normalize_brightness: false             # Fase 4: piora a AUROC e não reduz FP nas boas do teste
+  anomaly_map: maximo                     # Fase 4: max(z intensidade, z gradiente Sobel); melhora broken.
+                                          #   Custo: ~3x componentes espúrios nas boas (Fase 6 mede)
