@@ -10,6 +10,8 @@ começa. Módulos atuais:
   split   partição supervisionada própria e folds da validação cruzada
   metrics Dice, IoU, precisão e recall pixel a pixel; falsos positivos nas boas
   reference alinhamento, média e desvio por pixel, mapa de anomalia z, Otsu
+  preprocess denoising, Sobel (à mão e OpenCV) e bordas novas do Canny
+  pipeline carregamento alinhado e protocolo único de avaliação de mapas
 """
 
 __version__ = "0.1.0"
