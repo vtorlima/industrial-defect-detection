@@ -190,6 +190,7 @@ A precisão é alta (0,76 a 0,93) e o recall é baixo (0,18 a 0,59), com 30 a 40
 industrial-defect-detection/
 ├── config.yaml              parâmetros de todas as fases + seção `pipeline` com as escolhas feitas
 ├── requirements.txt
+├── requirements-lock.txt    versões exatas testadas, para reproduzir os números de results/
 ├── pyproject.toml           permite `pip install -e .`
 ├── data/                    dataset (baixado localmente, fora do Git)
 ├── notebooks/
@@ -198,7 +199,8 @@ industrial-defect-detection/
 ├── scripts/
 │   ├── download_data.py     extrai e confere o dataset
 │   ├── check_env.py         verifica se o ambiente está pronto
-│   └── run_fase{1..4}.py    um script por fase; grava em results/faseN/
+│   ├── run_fase{1..4}.py    um script por fase; grava em results/faseN/
+│   └── figuras_fase4.py     figuras da apresentação, só a partir dos CSVs de results/
 ├── src/pdi_defeitos/
 │   ├── config.py            leitura do config.yaml
 │   ├── io.py                listagem do dataset, imagens e máscaras
@@ -208,7 +210,7 @@ industrial-defect-detection/
 │   ├── preprocess.py        filtros, Sobel por convolução em NumPy, bordas novas do Canny
 │   ├── metrics.py           Dice, IoU, precisão, recall, componentes
 │   ├── pipeline.py          carregamento alinhado e protocolo único de avaliação (`evaluate_map`)
-│   └── viz.py               galerias e painéis de figuras
+│   └── viz.py               galerias, painéis de figuras e gráficos de resultados
 ├── results/faseN/           CSVs e figuras de cada fase
 └── tests/                   testes automáticos (rodam sem o dataset)
 ```
@@ -263,6 +265,7 @@ pip install -e .
 nbstripout --install
 ```
 
+- Para reproduzir exatamente os números de `results/`, use `pip install -r requirements-lock.txt` no lugar de `pip install -r requirements.txt`: ele fixa as versões testadas das dependências.
 - `pip install -e .` instala o pacote `pdi_defeitos` em modo editável: mudanças em `src/` valem na hora.
 - `nbstripout --install` faz o Git ignorar as saídas dos notebooks. Confira com `nbstripout --status`. Se recriar o `.venv`, rode de novo, porque o filtro aponta para o Python do ambiente.
 
