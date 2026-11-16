@@ -6,6 +6,7 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from matplotlib.ticker import MaxNLocator
 
 from .io import load_sample
 
@@ -76,3 +77,148 @@ def panel_grid(rows: list[list[np.ndarray]], row_titles: list[str], col_titles: 
                 ax.set_ylabel(row_titles[r], fontsize=8)
     fig.tight_layout()
     return fig
+
+
+# --- Gráficos de resultados (figuras da apresentação) -------------------------------
+# Só desenham: recebem tabelas já calculadas (os CSVs de results/) e não recalculam nada.
+
+ACCENT = "#2a78d6"      # o item em destaque (a escolha)
+CONTEXT = "#b4b2aa"     # os demais: contexto
+INK = "#0b0b0b"         # texto principal
+INK_2 = "#52514e"       # texto secundário
+MUTED = "#898781"       # eixos
+GRID = "#e1e0d9"
+SURFACE = "#fcfcfb"
+
+
+def fmt_br(value: float, decimals: int = 2) -> str:
+    """Número com vírgula decimal: fmt_br(0.8882) -> '0,89'."""
+    return f"{value:.{decimals}f}".replace(".", ",")
+
+
+def _style_axis(ax: plt.Axes, title: str, note: str | None = None) -> None:
+    ax.set_facecolor(SURFACE)
+    ax.set_title(title, fontsize=11, color=INK, loc="left", pad=20 if note else 8, fontweight="bold")
+    if note:
+        ax.text(0, 1.02, note, transform=ax.transAxes, fontsize=8.5, color=INK_2, va="bottom")
+    for side in ("top", "right", "left", "bottom"):
+        ax.spines[side].set_visible(False)
+    ax.tick_params(length=0, colors=MUTED, labelsize=8.5)
+
+
+def _colors(n: int, highlight: int | None) -> list[str]:
+    """Um destaque e o resto em cinza; sem destaque, tudo na cor de destaque."""
+    if highlight is None:
+        return [ACCENT] * n
+    return [ACCENT if i == highlight else CONTEXT for i in range(n)]
+
+
+def dot_panel(ax: plt.Axes, labels: list[str], values, title: str, highlight: int | None = None,
+              xlim: tuple[float, float] | None = None, note: str | None = None, decimals: int = 2) -> None:
+    """Pontos na horizontal, um por rótulo (de cima para baixo), com o valor ao lado.
+
+    Para medidas em que a diferença importa mais que a distância ao zero (ex.: AUROC):
+    o eixo pode começar fora do zero porque o ponto codifica posição, não comprimento.
+    """
+    values = np.asarray(values, dtype=float)
+    y = np.arange(len(values))
+    colors = _colors(len(values), highlight)
+    _style_axis(ax, title, note)
+    lo, hi = xlim or (values.min(), values.max())
+    ax.hlines(y, lo, values, color=GRID, linewidth=1, zorder=1)
+    ax.scatter(values, y, s=70, c=colors, edgecolors=SURFACE, linewidths=1.5, zorder=3)
+    for i, v in enumerate(values):
+        ax.annotate(fmt_br(v, decimals), (v, i), xytext=(8, 0), textcoords="offset points", va="center",
+                    fontsize=9, color=INK, fontweight="bold" if i == highlight else "normal")
+    ax.set_xlim(lo, hi)
+    ax.set_ylim(len(values) - 0.5, -0.5)
+    ax.set_yticks(y, labels)
+    ax.xaxis.set_major_formatter(lambda v, _: fmt_br(v, 1))
+    ax.grid(axis="x", color=GRID, linewidth=0.8, zorder=0)
+    ax.set_axisbelow(True)
+    _emphasize_tick(ax.get_yticklabels(), highlight)
+
+
+def hbar_panel(ax: plt.Axes, labels: list[str], values, title: str, highlight: int | None = None,
+               note: str | None = None, decimals: int = 2) -> None:
+    """Barras horizontais a partir do zero, uma por rótulo (de cima para baixo), com o valor na ponta."""
+    values = np.asarray(values, dtype=float)
+    y = np.arange(len(values))
+    _style_axis(ax, title, note)
+    ax.barh(y, values, height=0.5, color=_colors(len(values), highlight), zorder=2)
+    for i, v in enumerate(values):
+        ax.annotate(fmt_br(v, decimals), (v, i), xytext=(5, 0), textcoords="offset points", va="center",
+                    fontsize=9, color=INK, fontweight="bold" if i == highlight else "normal")
+    ax.set_xlim(0, values.max() * 1.22)
+    ax.set_ylim(len(values) - 0.5, -0.5)
+    ax.set_yticks(y, labels)
+    ax.xaxis.set_major_formatter(lambda v, _: fmt_br(v, 0))
+    ax.grid(axis="x", color=GRID, linewidth=0.8, zorder=0)
+    ax.set_axisbelow(True)
+    ax.axvline(0, color="#c3c2b7", linewidth=1, zorder=3)
+    _emphasize_tick(ax.get_yticklabels(), highlight)
+
+
+def column_panel(ax: plt.Axes, labels: list[str], values, title: str, note: str | None = None,
+                 highlight: int | None = None, ymax: float | None = None, decimals: int = 2) -> None:
+    """Colunas a partir do zero, uma por etapa, com o valor em cima."""
+    values = np.asarray(values, dtype=float)
+    x = np.arange(len(values))
+    _style_axis(ax, title, note)
+    ax.bar(x, values, width=0.45, color=_colors(len(values), highlight), zorder=2)
+    for i, v in enumerate(values):
+        ax.annotate(fmt_br(v, decimals), (i, v), xytext=(0, 4), textcoords="offset points", ha="center",
+                    fontsize=10, color=INK, fontweight="bold" if i == highlight else "normal")
+    ax.set_ylim(0, ymax if ymax is not None else values.max() * 1.15)
+    ax.set_xlim(-0.6, len(values) - 0.4)
+    ax.set_xticks(x, labels)
+    ax.tick_params(axis="x", labelsize=9, colors=INK_2)
+    if ax.get_ylim()[1] > 2:  # contagens: marcas inteiras
+        ax.yaxis.set_major_locator(MaxNLocator(integer=True, nbins=5))
+    ax.yaxis.set_major_formatter(lambda v, _: fmt_br(v, 1) if ax.get_ylim()[1] <= 2 else fmt_br(v, 0))
+    ax.grid(axis="y", color=GRID, linewidth=0.8, zorder=0)
+    ax.set_axisbelow(True)
+    ax.axhline(0, color="#c3c2b7", linewidth=1, zorder=3)
+    _emphasize_tick(ax.get_xticklabels(), highlight)
+
+
+def _emphasize_tick(ticklabels, highlight: int | None) -> None:
+    for i, t in enumerate(ticklabels):
+        t.set_color(INK if i == highlight else INK_2)
+        t.set_fontweight("bold" if i == highlight else "normal")
+
+
+def filter_choice(labels: list[str], auroc: dict[str, list[float]], components: list[float],
+                  highlight: int, title: str, subtitle: str = "") -> plt.Figure:
+    """Escolha do filtro: um painel de AUROC por coluna de `auroc` (título -> valores por
+    filtro, todos no mesmo eixo) e um painel de componentes espúrios por garrafa boa.
+    `highlight`: posição do filtro escolhido."""
+    n = len(auroc) + 1
+    fig, axes = plt.subplots(1, n, figsize=(2.75 * n + 1.6, 0.42 * len(labels) + 2.1), sharey=True, facecolor=SURFACE)
+    allv = np.concatenate([np.asarray(v, dtype=float) for v in auroc.values()])
+    lo = np.floor(allv.min() * 10) / 10
+    for ax, (name, vals) in zip(axes, auroc.items()):
+        dot_panel(ax, labels, vals, name, highlight, xlim=(lo, 1.0), note="AUROC de pixel · maior é melhor")
+    hbar_panel(axes[-1], labels, components, "Componentes espúrios", highlight,
+               note="por garrafa boa (calibração) · menor é melhor")
+    _titles(fig, title, subtitle)
+    return fig
+
+
+def progress(stages: list[str], panels: list[tuple[str, str, list[float], float | None]],
+             title: str, subtitle: str = "") -> plt.Figure:
+    """Progresso por etapa: um painel de colunas por métrica.
+
+    panels: lista de (título, nota, valores por etapa, teto do eixo ou None)."""
+    fig, axes = plt.subplots(1, len(panels), figsize=(4.2 * len(panels), 4.3), facecolor=SURFACE)
+    for ax, (name, note, vals, ymax) in zip(np.atleast_1d(axes), panels):
+        column_panel(ax, stages, vals, name, note, ymax=ymax)
+    _titles(fig, title, subtitle)
+    return fig
+
+
+def _titles(fig: plt.Figure, title: str, subtitle: str) -> None:
+    fig.tight_layout(rect=(0, 0, 1, 0.86 if subtitle else 0.91), w_pad=2.5)
+    fig.text(0.012, 0.965, title, fontsize=13.5, fontweight="bold", color=INK, va="top")
+    if subtitle:
+        fig.text(0.012, 0.905, subtitle, fontsize=9.5, color=INK_2, va="top")
