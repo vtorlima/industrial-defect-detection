@@ -41,8 +41,8 @@ def main() -> int:
     evaluation = part[part.role == "evaluation"]
     folds = make_cv_folds(evaluation, p["cv_splits"], p["cv_seeds"])
 
-    part[PARTITION_COLUMNS].to_csv(out_dir / "particao.csv", index=False)
-    folds.to_csv(out_dir / "folds.csv", index=False)
+    part[PARTITION_COLUMNS].to_csv(out_dir / "particao.csv", index=False, lineterminator="\n")
+    folds.to_csv(out_dir / "folds.csv", index=False, lineterminator="\n")
 
     # Resumo: papel x tipo
     table = pd.crosstab(part.role, part.defect_type, margins=True, margins_name="total")

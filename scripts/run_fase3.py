@@ -82,7 +82,7 @@ def main() -> int:
             rows.append({"alinhado": align, "regiao": name, "std_mediano": np.median(models[align].std[sel]),
                          "std_p95": np.percentile(models[align].std[sel], 95)})
     align_tab = pd.DataFrame(rows)
-    align_tab.to_csv(out_dir / "alinhamento.csv", index=False, float_format="%.3f")
+    align_tab.to_csv(out_dir / "alinhamento.csv", index=False, float_format="%.3f", lineterminator="\n")
 
     # 3-5. Para cada variante: limiar, máscaras e métricas
     variants = {"baseline": (True, "calibrado"), "sem_alinhamento": (False, "calibrado"), "otsu_por_imagem": (True, "otsu")}
@@ -107,7 +107,7 @@ def main() -> int:
             if vname == "baseline" and row.role == "development":
                 examples.append((row.sample_id, g, z, pred, m))
     per_image = pd.DataFrame(per_image)
-    per_image.to_csv(out_dir / "metricas_por_imagem.csv", index=False, float_format="%.5f")
+    per_image.to_csv(out_dir / "metricas_por_imagem.csv", index=False, float_format="%.5f", lineterminator="\n")
 
     # Grupo de resumo: tipo de defeito; boas separadas em treino e teste (achado da Fase 2)
     per_image["grupo"] = np.where(per_image.defect_type == "good", "good_" + per_image.split, per_image.defect_type)
@@ -135,8 +135,8 @@ def main() -> int:
                 ys.append(m[roi] > 0)
             auc_rows.append({"variante": vname, "role": role, "auroc_pixel": roc_auc_score(np.concatenate(ys), np.concatenate(zs))})
     auc = pd.DataFrame(auc_rows)
-    summary.to_csv(out_dir / "resumo.csv", index=False, float_format="%.4f")
-    auc.to_csv(out_dir / "auroc_pixel.csv", index=False, float_format="%.4f")
+    summary.to_csv(out_dir / "resumo.csv", index=False, float_format="%.4f", lineterminator="\n")
+    auc.to_csv(out_dir / "auroc_pixel.csv", index=False, float_format="%.4f", lineterminator="\n")
 
     # Figura: os 9 exemplos de desenvolvimento no baseline
     zmax = thresholds["baseline"] * 2

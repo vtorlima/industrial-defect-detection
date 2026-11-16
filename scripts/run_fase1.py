@@ -62,7 +62,7 @@ def main() -> int:
         if row.split == "train":
             good_stack.append(gray.astype(np.float64))
     samples = pd.DataFrame(rows)
-    samples.to_csv(out_dir / "amostras.csv", index=False, float_format="%.4f")
+    samples.to_csv(out_dir / "amostras.csv", index=False, float_format="%.4f", lineterminator="\n")
 
     # 2. Resumo por tipo de defeito
     cols = ["area_px", "area_frac", "equiv_diameter_px", "n_components", "radial_pos", "dL", "dab"]
@@ -70,7 +70,7 @@ def main() -> int:
     summary = defects.groupby("defect_type")[cols].agg(["min", "median", "max"])
     summary.columns = [f"{c}_{s}" for c, s in summary.columns]
     summary.insert(0, "n", defects.groupby("defect_type").size())
-    summary.to_csv(out_dir / "resumo_por_tipo.csv", float_format="%.4f")
+    summary.to_csv(out_dir / "resumo_por_tipo.csv", float_format="%.4f", lineterminator="\n")
 
     # 3. Variabilidade natural das garrafas boas (treino), por faixa de raio
     stack = np.stack(good_stack)
@@ -88,7 +88,7 @@ def main() -> int:
             "cinza_medio": stats.radial_profile(mean_map, rdist, edges, stat=np.mean),
         }
     )
-    radial.to_csv(out_dir / "variabilidade_radial.csv", index=False, float_format="%.3f")
+    radial.to_csv(out_dir / "variabilidade_radial.csv", index=False, float_format="%.3f", lineterminator="\n")
 
     # 4. Figuras
     viz.gallery(df, size, n_per_type=ex["gallery_per_type"], seed=ex["gallery_seed"]).savefig(out_dir / "galeria.png", dpi=110)
